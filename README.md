@@ -19,7 +19,7 @@ First download this application from this repository to your local folder
 npm install 
 ````
 you can run this code in the command promt inside your local folder directory
-that is for the express aplication
+that is for the express application
 
 ## Turn On
 Before turn on the application you can open your mongoDBCompass and connect with the local server or localhost 
@@ -32,3 +32,6 @@ Result will be like this
 Server Run on Port 3000
 Connected to the database!
 ````
+
+# User
+```bash
