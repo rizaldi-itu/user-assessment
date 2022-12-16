@@ -6,7 +6,15 @@ This application uses node.js technology with the express.js framework and the m
 
 in the section below I will explain some of the features contained in this application in detail, starting from sending requests and their contents and receiving results provided by the server to the client. The explanation will be sorted from the begining or installation until you get the last or final feature from this application 
 
+## Prerequisite
+Before install this program you should install a few program to your computer
+* Node Js
+* MongoDB
+* Postman
+
 ## Install
+First download this application from this repository to your local folder
 ```bash
-npm install semver
+npm install 
 ````
+you can run this code in the command promt inside your local folder directory 
