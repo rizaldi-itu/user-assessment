@@ -34,4 +34,23 @@ Connected to the database!
 ````
 
 # User
+In this section i will explain about feature that used for maniplualtin data from user entity
+this is a few feature for this section 
+* Sign Up
+* Sign In
+* Check Self User Data Detail
+* Check All User Data Available
+* Update User Data
+
+## Sign Up 
+Feature Sign Up is used by User for registration or create accout for themself.
+This is the URL for Sign Up 
 ```bash
+http://localhost:3000/signUp
+```
+Request should contain this data
+| Name           | Type           | Description            |
+|----------------|----------------|------------------------|
+| Username       | String         | Username User(required)|
+| Password       | String         | Password User(required)|
+| Password2      | String         | Confirmation Password  |
