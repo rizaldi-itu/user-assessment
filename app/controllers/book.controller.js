@@ -45,7 +45,12 @@ exports.inputNewBook = async (req, res, next) => {
             const book = data;
             User.findById(req.query.id).then((data) => {
               const user = data;
-              res.status(200).json({ user: user, book: book });
+              res.status(200).json({
+                user: user,
+                book: book,
+                message:
+                  "Add Book Success, This Book Registered With Your Account",
+              });
             });
           });
         }
@@ -176,6 +181,6 @@ exports.checkBookDetailWithRegex = async (req, res, next) => {
     .catch((err) => {
       res
         .status(500)
-        .send({ message: "Error retrieving Book with title=" + text });
+        .send({ message: "Error retrieving Book with Regex=" + text });
     });
 };

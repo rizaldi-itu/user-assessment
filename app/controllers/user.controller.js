@@ -132,63 +132,75 @@ exports.signIn = async (req, res, next) => {
 };
 
 exports.updateUser = async (req, res, next) => {
+  // res.send(req.didl);
+
   if (!req.body) {
-    return res.status(400).send({
+    res.status(400).send({
       message: "Data to update can not be empty!",
     });
+  } else {
+    if (!req.query) {
+      res.status(400).send({
+        message: "Data to update can not be empty!",
+      });
+    } else {
+      User.findOne({ username: req.body.username })
+        .exec()
+        .then((data) => {
+          if (data) {
+            // res.send(data);
+            res.json({
+              message: "Username Already Used!",
+            });
+          } else {
+            User.findOne({ email: req.body.email })
+              .exec()
+              .then((data) => {
+                if (data) {
+                  res.json({
+                    message: "Email Already Used!",
+                  });
+                } else {
+                  const id = req.query.id;
+
+                  const user = new User({
+                    _id: id,
+                    username: req.body.username,
+                    name: req.body.name,
+                    email: req.body.email,
+                    imageUrl: req.file.path,
+                  });
+
+                  User.findByIdAndUpdate(id, user, { useFindAndModify: true })
+                    .then((data) => {
+                      if (!data) {
+                        res.status(404).send({
+                          message: `Cannot update User with id=${id}. Maybe User was not found!`,
+                        });
+                      } else {
+                        // res.send(data);
+                        User.findOne({ _id: id })
+                          .exec()
+                          .then((data) => {
+                            res.send({
+                              message:
+                                "Success update data in database with id=" + id,
+                              data: data,
+                            });
+                          });
+                      }
+                    })
+                    .catch((err) => {
+                      res.status(500).send({
+                        message: "Error retrieving Book with id=" + id + err,
+                      });
+                    });
+                }
+              });
+          }
+        });
+    }
   }
-
-  if (!req.query) {
-    return res.status(400).send({
-      message: "Data to update can not be empty!",
-    });
-  }
-
-  User.find({ username: req.body.username })
-    .exec()
-    .then((data) => {
-      if (data) {
-        return res.status(400).send({
-          message: "Username Already Used!",
-        });
-      }
-    });
-
-  User.find({ email: req.body.email })
-    .exec()
-    .then((data) => {
-      if (data) {
-        return res.status(400).send({
-          message: "Email Already Used!",
-        });
-      }
-    });
-
-  const id = req.query.id;
-
-  const user = new User({
-    _id: id,
-    username: req.body.username,
-    name: req.body.name,
-    email: req.body.email,
-    imageUrl: req.file.path,
-  });
-
-  User.findByIdAndUpdate(id, user, { useFindAndModify: true })
-    .then((data) => {
-      if (!data) {
-        res.status(404).send({
-          message: `Cannot update Book with id=${id}. Maybe Book was not found!`,
-        });
-      } else {
-        res.send({ message: "Success update data in database with id=" + id });
-      }
-    })
-    .catch((err) => {
-      res
-        .status(500)
-        .send({ message: "Error retrieving Book with id=" + id + err });
-    });
 };
 
 exports.AddBookToUser = async (req, res, next) => {
