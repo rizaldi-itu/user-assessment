@@ -68,8 +68,8 @@ exports.checkAllBook = async (req, res, next) => {
   }
 
   Book.find()
-    .skip((page - 1) * item_per_page)
-    .limit(item_per_page)
+    // .skip((page - 1) * item_per_page)
+    .limit(page * item_per_page)
     .then((data) => {
       res.send(data);
     });
@@ -159,7 +159,13 @@ exports.checkBookDetailWithRegex = async (req, res, next) => {
   const id = req.query.id;
   const text = req.query.text;
 
-  Book.find({ title: { $regex: text } })
+  Book.find({
+    $or: [
+      { title: { $regex: text } },
+      { description: { $regex: text } },
+      { genre: { $regex: text } },
+    ],
+  })
     .then((data) => {
       if (!data) {
         res.status(404).send({ message: "Not found Book with title " + text });
