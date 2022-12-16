@@ -1,5 +1,6 @@
 const db = require("../models");
 const Book = db.book;
+const User = db.user;
 var bodyParser = require("body-parser");
 const { application } = require("express");
 // const uploadFile = require("../middlewares/upload");
@@ -13,6 +14,7 @@ exports.inputNewBook = async (req, res, next) => {
   const genre = req.body.genre;
   const rating = req.body.rating;
   const published = req.body.published;
+  const user_id = req.query.id;
 
   const imageUrl = req.file.path;
 
@@ -26,10 +28,28 @@ exports.inputNewBook = async (req, res, next) => {
   });
 
   book
-    .save(book)
     // .exec()
+    .save(book)
     .then((data) => {
-      res.send(data);
+      // res.send(data);
+      const book_id = [data._id];
+      const condition = { _id: user_id };
+      const update = { $push: { books: book_id } };
+      User.updateOne(condition, update, (err, result) => {
+        if (err) {
+          // Handle the error
+          res.send({ message: "Update failed " + err });
+        } else {
+          // Update was successful
+          Book.find({ _id: data._id }).then((data) => {
+            const book = data;
+            User.findById(req.query.id).then((data) => {
+              const user = data;
+              res.status(200).json({ user: user, book: book });
+            });
+          });
+        }
+      });
     })
     .catch((err) => {
       res.status(500).send({

@@ -172,18 +172,20 @@ exports.AddBookToUser = async (req, res, next) => {
 };
 
 exports.checkAllUser = async (req, res, next) => {
-  const page = req.query.page;
-
-  if (page < 1) {
-    res
-      .status(404)
-      .send({ message: "Error retrieving Book with saya juga nggak tau" });
-  }
-
-  User.find()
-    .skip((page - 1) * item_per_page)
-    .limit(item_per_page)
-    .then((data) => {
+  if (req.query.id) {
+    User.findOne({ _id: req.query.id }).then((data) => {
       res.send(data);
     });
+  } else {
+    const page = req.query.page;
+    if (page < 1) {
+      res.status(404).send({ message: "Page should more than 0" });
+    }
+    User.find()
+      // .skip((page - 1) * item_per_page)
+      .limit(page * item_per_page)
+      .then((data) => {
+        res.send(data);
+      });
+  }
 };

@@ -8,7 +8,8 @@ const middlewares = require("../middlewares/authJwt");
 // routes that availabel
 router.post("/signUp", userController.signUp);
 router.get("/signIn", middlewares.verifyToken, userController.signIn);
+router.get("/checkUser", userController.checkAllUser);
 router.post("/AddBookToUser", userController.AddBookToUser);
-router.get("/checkAllUser", userController.checkAllUser);
+// router.get("/checkMyProfile", userController.checkAllUser);
 
 module.exports = router;

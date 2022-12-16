@@ -9,12 +9,14 @@ module.exports = (mongoose, mongoosePaginate) => {
       email: String,
       imageUrl: String,
       token: String,
-      books: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Book",
-        // required: true,
-        // default: "",
-      },
+      books: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Book",
+          // required: true,
+          // default: "",
+        },
+      ],
     },
     { timestamps: true }
   );
