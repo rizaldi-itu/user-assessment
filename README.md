@@ -10,6 +10,7 @@ in the section below I will explain some of the features contained in this appli
 Before install this program you should install a few program to your computer
 * Node Js
 * MongoDB
+* MongoDBCompass
 * Postman
 
 ## Install
@@ -17,4 +18,17 @@ First download this application from this repository to your local folder
 ```bash
 npm install 
 ````
-you can run this code in the command promt inside your local folder directory 
+you can run this code in the command promt inside your local folder directory
+that is for the express aplication
+
+## Turn On
+Before turn on the application you can open your mongoDBCompass and connect with the local server or localhost 
+After installation and mongoDB connection you can start the application using 
+```bash
+npm start 
+````
+Result will be like this
+```bash
+Server Run on Port 3000
+Connected to the database!
+````
