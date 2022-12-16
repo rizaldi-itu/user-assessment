@@ -1,0 +1,14 @@
+const express = require("express");
+const router = express.Router();
+
+// controller that required
+const userController = require("../controllers/user.controller");
+const middlewares = require("../middlewares/authJwt");
+
+// routes that availabel
+router.post("/signUp", userController.signUp);
+router.get("/signIn", middlewares.verifyToken, userController.signIn);
+router.post("/AddBookToUser", userController.AddBookToUser);
+router.get("/checkAllUser", userController.checkAllUser);
+
+module.exports = router;
