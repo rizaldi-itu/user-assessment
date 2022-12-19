@@ -10,36 +10,40 @@ const item_per_page = 3;
 
 exports.inputNewBook = async (req, res, next) => {
   if (!req.query.id) {
-    return res.send({ message: "You Should Sign In First" });
+    return res.status(401).send({ message: "You Should Sign In First" });
   } else {
-    User.findById(req.query.id).then((data) => {
+    User.findOne({ _id: [req.query.id] }).then((data) => {
       if (!data) {
-        return res.send({ message: "Account Not Found" });
+        return res.status(404).send({ message: "Account Not Found" });
       } else {
         const user = data;
         if (!req.body.title) {
-          return res.send({ message: "Please fill the Title of the Book" });
+          return res
+            .status(404)
+            .send({ message: "Please fill the Title of the Book" });
         } else {
           if (!req.body.description) {
-            return res.send({
+            return res.status(404).send({
               message: "Please fill the Description of the Book",
             });
           } else {
             if (!req.body.genre) {
-              return res.send({ message: "Please fill the Genre of the Book" });
+              return res
+                .status(404)
+                .send({ message: "Please fill the Genre of the Book" });
             } else {
               if (!req.body.rating) {
-                return res.send({
+                return res.status(404).send({
                   message: "Please fill the Rating of the Book",
                 });
               } else {
                 if (!req.body.published) {
-                  return res.send({
+                  return res.status(404).send({
                     message: "Please check the Publish Setting of the Book",
                   });
                 } else {
                   if (!req.file) {
-                    return res.send({
+                    return res.status(404).send({
                       message: "Please Insert the Book's Image",
                     });
                   } else {
@@ -69,7 +73,9 @@ exports.inputNewBook = async (req, res, next) => {
                         const update = { $push: { books: book_id } };
                         User.updateOne(condition, update, (err, result) => {
                           if (err) {
-                            res.send({ message: "Update failed " + err });
+                            res
+                              .status(400)
+                              .send({ message: "Update failed " + err });
                           } else {
                             res.status(200).json({
                               message:
@@ -99,20 +105,33 @@ exports.inputNewBook = async (req, res, next) => {
 };
 
 exports.checkAllBook = async (req, res, next) => {
-  const page = req.query.page;
-
-  if (page < 1) {
-    res
-      .status(404)
-      .send({ message: "Error retrieving Book with saya juga nggak tau" });
-  }
-
-  Book.find()
-    // .skip((page - 1) * item_per_page)
-    .limit(page * item_per_page)
-    .then((data) => {
-      res.send(data);
+  if (!req.query.id) {
+    res.status(401).send({ message: "Should Sing In First" });
+  } else {
+    User.findOne({ _id: req.query.id }).then((data) => {
+      if (!data) {
+        res.status(404).send({ message: "Account Not Found" });
+      } else {
+        if (!req.query.page) {
+          res.status(404).send({ message: "Default Page Should Be 1" });
+        } else {
+          const page = req.query.page;
+          if (page < 1) {
+            res.status(404).send({
+              message: "Error retrieving Book with saya juga nggak tau",
+            });
+          } else {
+            Book.find()
+              // .skip((page - 1) * item_per_page)
+              .limit(page * item_per_page)
+              .then((data) => {
+                res.send(data);
+              });
+          }
+        }
+      }
     });
+  }
 };
 
 exports.checkBookDetail = async (req, res, next) => {

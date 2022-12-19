@@ -14,26 +14,26 @@ const item_per_page = 3;
 
 exports.signUp = async (req, res, next) => {
   if (!req.body.username) {
-    res.send({ message: "Please Insert Username" });
+    res.status(404).send({ message: "Please Insert Username" });
   } else {
     if (!req.body.password) {
-      res.send({ message: "Please Insert Password" });
+      res.status(404).send({ message: "Please Insert Password" });
     } else {
       if (!req.body.password2) {
-        res.send({ message: "Please Insert Confirm Password" });
+        res.status(404).send({ message: "Please Insert Confirm Password" });
       } else {
         if (!req.body.name) {
-          res.send({ message: "Please Insert Name" });
+          res.status(404).send({ message: "Please Insert Name" });
         } else {
           if (!req.body.email) {
-            res.send({ message: "Please Insert Email" });
+            res.status(404).send({ message: "Please Insert Email" });
           } else {
             const checkEmail = await isEmailValid(req.body.email);
             if (!checkEmail.validators.regex.valid) {
-              res.send({ message: "Please Insert Correct Email" });
+              res.status(404).send({ message: "Please Insert Correct Email" });
             } else {
               if (!req.file) {
-                res.send({ message: "Please Insert Image" });
+                res.status(404).send({ message: "Please Insert Image" });
               } else {
                 const username = req.body.username;
                 const password = req.body.password;
@@ -43,7 +43,7 @@ exports.signUp = async (req, res, next) => {
                 const imageUrl = req.file.path;
 
                 if (password !== password2) {
-                  res.send({ message: "Password Doesn't Match" });
+                  res.status(404).send({ message: "Password Doesn't Match" });
                 } else {
                   const user = new User({
                     username: username,
@@ -60,12 +60,14 @@ exports.signUp = async (req, res, next) => {
                     .then((data) => {
                       if (data) {
                         if (data.username) {
-                          return res.send({
+                          return res.status(404).send({
                             message: "Username Allready Used",
                           });
                         }
                         if (data.email) {
-                          return res.send({ message: "Email Allready Used" });
+                          return res
+                            .status(404)
+                            .send({ message: "Email Allready Used" });
                         }
                       } else {
                         user.token = jwt.sign(
@@ -73,20 +75,9 @@ exports.signUp = async (req, res, next) => {
                           config.secret
                         );
                         user.save(user).then((data) => {
-                          return res.send({ message: "Sign Up Success", data });
-                          // user.token = jwt.sign(
-                          //   { username: username, password: password },
-                          //   config.secret
-                          // );
-                          // const query = { _id: [data._id] };
-                          // const update = { token: user.token };
-                          // User.updateOne(query, update, (err, result) => {
-                          //   if (err) {
-                          //     return res.send({ message: "Update failed " + err });
-                          //   } else {
-                          //     return res.status(200).send(result);
-                          //   }
-                          // });
+                          return res
+                            .status(200)
+                            .send({ message: "Sign Up Success", data });
                         });
                       }
                     });
@@ -107,10 +98,10 @@ exports.signIn = async (req, res, next) => {
     });
   } else {
     if (!req.body.username) {
-      res.send({ message: "Please Insert Username" });
+      res.status(404).send({ message: "Please Insert Username" });
     } else {
       if (!req.body.password) {
-        res.send({ message: "Please Insert Password" });
+        res.status(404).send({ message: "Please Insert Password" });
       } else {
         User.findOne({
           username: req.body.username,
@@ -145,85 +136,100 @@ exports.signIn = async (req, res, next) => {
 
 exports.updateUser = async (req, res, next) => {
   // res.send(req.didl);
-  if (!req.query.id) {
-    return res.send({ message: "You Should Sign In Already" });
+  if (!req.body.email) {
+    return res.status(404).send({ message: "Please fill your Email" });
   } else {
-    if (!req.body.username) {
-      return res.send({ message: "Please fill your Username" });
+    const checkEmail = await isEmailValid(req.body.email);
+    if (!checkEmail.validators.regex.valid) {
+      return res.status(403).send({ message: "Please fill Email Correctly" });
     } else {
-      if (!req.body.name) {
-        return res.send({ message: "Please fill your Name" });
+      if (!req.query.id) {
+        return res.status(401).send({ message: "You Should Sign In Already" });
       } else {
-        if (!req.body.email) {
-          return res.send({ message: "Please fill your Email" });
-        } else {
-          if (!req.file) {
-            return res.send({ message: "Please fill your Photo" });
-          } else {
-            const checkEmail = await isEmailValid(req.body.email);
-            if (!checkEmail.validators.regex.valid) {
-              return res.send({ message: "Please fill Email Correctly" });
+        User.findOne({ _id: req.query.id })
+          .exec()
+          .then((data) => {
+            if (!data) {
+              return res.status(404).send({ message: "Account Not Found" });
             } else {
-              User.findOne({ username: req.body.username })
-                .exec()
-                .then((data) => {
-                  if (data) {
-                    res.send({
-                      message: "Username Already Used!",
-                    });
+              if (!req.body.username) {
+                return res
+                  .status(404)
+                  .send({ message: "Please fill your Username" });
+              } else {
+                if (!req.body.name) {
+                  return res
+                    .status(404)
+                    .send({ message: "Please fill your Name" });
+                } else {
+                  if (!req.file) {
+                    return res
+                      .status(404)
+                      .send({ message: "Please fill your Photo" });
                   } else {
-                    User.findOne({ email: req.body.email })
+                    User.findOne({ username: req.body.username })
                       .exec()
                       .then((data) => {
                         if (data) {
-                          res.send({
-                            message: "Email Already Used!",
+                          res.status(404).send({
+                            message: "Username Already Used!",
                           });
                         } else {
-                          const id = req.query.id;
-                          const user = new User({
-                            _id: id,
-                            username: req.body.username,
-                            name: req.body.name,
-                            email: req.body.email,
-                            imageUrl: req.file.path,
-                          });
-
-                          User.findByIdAndUpdate(id, user, {
-                            useFindAndModify: true,
-                          })
+                          User.findOne({ email: req.body.email })
+                            .exec()
                             .then((data) => {
-                              if (!data) {
+                              if (data) {
                                 res.status(404).send({
-                                  message: `Cannot update User with id = ${id}. Maybe User was not found!`,
+                                  message: "Email Already Used!",
                                 });
                               } else {
-                                // res.send(data);
-                                User.findOne({ _id: id })
-                                  .exec()
+                                const id = req.query.id;
+                                const user = new User({
+                                  _id: id,
+                                  username: req.body.username,
+                                  name: req.body.name,
+                                  email: req.body.email,
+                                  imageUrl: req.file.path,
+                                });
+
+                                User.findByIdAndUpdate(id, user, {
+                                  useFindAndModify: true,
+                                })
                                   .then((data) => {
-                                    res.send({
+                                    if (!data) {
+                                      res.status(404).send({
+                                        message: `Cannot update User with id = ${id}. Maybe User was not found!`,
+                                      });
+                                    } else {
+                                      User.findOne({ _id: id })
+                                        .exec()
+                                        .then((data) => {
+                                          res.status(200).send({
+                                            message:
+                                              "Success update data in database with id = " +
+                                              id,
+                                            data: data,
+                                          });
+                                        });
+                                    }
+                                  })
+                                  .catch((err) => {
+                                    res.status(500).send({
                                       message:
-                                        "Success update data in database with id = " +
-                                        id,
-                                      data: data,
+                                        "Error retrieving Book with id=" +
+                                        id +
+                                        err,
                                     });
                                   });
                               }
-                            })
-                            .catch((err) => {
-                              res.status(500).send({
-                                message:
-                                  "Error retrieving Book with id=" + id + err,
-                              });
                             });
                         }
                       });
                   }
-                });
+                }
+              }
             }
-          }
-        }
+          });
       }
     }
   }
@@ -272,21 +278,25 @@ exports.AddBookToUser = async (req, res, next) => {
 exports.checkUser = async (req, res, next) => {
   if (req.query.id) {
     User.findOne({ _id: req.query.id }).then((data) => {
-      res.send({ message: "Check My Profile Success", data });
+      if (!data) {
+        res.status(404).send({ message: "Account Not Found" });
+      } else {
+        res.status(200).send({ message: "Check My Profile Success", data });
+      }
     });
   } else {
     if (!req.query.page) {
-      res.status(404).send({ message: "You should set default Page = 1" });
+      res.status(400).send({ message: "You should set default Page = 1" });
     } else {
       const page = req.query.page;
       if (page < 1) {
-        res.status(404).send({ message: "Page should more than 0" });
+        res.status(400).send({ message: "Page should more than 0" });
       }
       User.find()
         // .skip((page - 1) * item_per_page)
         .limit(page * item_per_page)
         .then((data) => {
-          res.send({ message: "Check All User Success", data });
+          res.status(200).send({ message: "Check All User Success", data });
         });
     }
   }

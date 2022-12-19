@@ -1,6 +1,9 @@
 module.exports = (mongoose, mongoosePaginate) => {
   var user = mongoose.Schema(
     {
+      _id: {
+        type: mongoose.Schema.Types.ObjectId,
+      },
       username: {
         type: String,
       },
