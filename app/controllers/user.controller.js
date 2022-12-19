@@ -10,10 +10,117 @@ var nodemailer = require("nodemailer");
 // var dbatebled;
 const moment = require("moment");
 const { isEmailValid } = require("../middlewares/validation");
+const { object } = require("mongoose/lib/utils");
+const { ObjectId } = require("mongoose/lib/types");
 
-const item_per_page = 3;
+const item_per_page = 5;
 
-exports.createdUser = async (req, res, next) => {};
+exports.createUser = (req, res, next) => {
+  if (!req.query.id) {
+    res.status(401).send({ message: "Unauthorized" });
+  } else {
+    User.findById(req.query.id)
+      .populate("role")
+      .exec()
+      .then(async (data) => {
+        // res.send(data);
+        if (data.role.name !== "admin") {
+          res.status(401).send({ message: "Need Admin Role To Create User" });
+        } else {
+          const id_admin = data.id;
+          if (!req.body.username) {
+            res.status(404).send({ message: "Please Insert Username" });
+          } else {
+            if (!req.body.password) {
+              res.status(404).send({ message: "Please Insert Password" });
+            } else {
+              if (!req.body.password2) {
+                res
+                  .status(404)
+                  .send({ message: "Please Insert Confirm Password" });
+              } else {
+                if (!req.body.name) {
+                  res.status(404).send({ message: "Please Insert Name" });
+                } else {
+                  if (!req.body.email) {
+                    res.status(404).send({ message: "Please Insert Email" });
+                  } else {
+                    const checkEmail = await isEmailValid(req.body.email);
+                    if (!checkEmail.validators.regex.valid) {
+                      res
+                        .status(404)
+                        .send({ message: "Please Insert Correct Email" });
+                    } else {
+                      if (!req.file) {
+                        res
+                          .status(404)
+                          .send({ message: "Please Insert Image" });
+                      } else {
+                        const username = req.body.username;
+                        const password = req.body.password;
+                        const password2 = req.body.password2;
+                        const name = req.body.name;
+                        const email = req.body.email;
+                        const imageUrl = req.file.path;
+
+                        if (password !== password2) {
+                          res
+                            .status(404)
+                            .send({ message: "Password Doesn't Match" });
+                        } else {
+                          const user = new User({
+                            username: username,
+                            password: bcrypt.hashSync(password, 8),
+                            name: name,
+                            email: email,
+                            imageUrl: imageUrl,
+                          });
+
+                          User.findOne({
+                            $and: [{ username: username }, { email: email }],
+                          })
+                            .exec()
+                            .then((data) => {
+                              if (data) {
+                                if (data.username) {
+                                  return res.status(404).send({
+                                    message: "Username Allready Used",
+                                  });
+                                }
+                                if (data.email) {
+                                  return res
+                                    .status(404)
+                                    .send({ message: "Email Allready Used" });
+                                }
+                              } else {
+                                user.token = jwt.sign(
+                                  { username: username, password: password },
+                                  config.secret
+                                );
+                                Role.findOne({ name: "user" }).then((data) => {
+                                  user.role = data._id;
+                                  user.id_admin = id_admin;
+                                  user.save(user).then((data) => {
+                                    return res.status(200).send({
+                                      message: "Sign Up Success",
+                                      data,
+                                    });
+                                  });
+                                });
+                              }
+                            });
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      });
+  }
+};
 
 exports.signUp = async (req, res, next) => {
   if (!req.body.username) {
@@ -78,14 +185,12 @@ exports.signUp = async (req, res, next) => {
                           config.secret
                         );
                         Role.findOne({ name: "user" }).then((data) => {
-                          res.send(data);
-                          process.exit();
-                        });
-
-                        user.save(user).then((data) => {
-                          return res
-                            .status(200)
-                            .send({ message: "Sign Up Success", data });
+                          user.role = data._id;
+                          user.save(user).then((data) => {
+                            return res
+                              .status(200)
+                              .send({ message: "Sign Up Success", data });
+                          });
                         });
                       }
                     });
@@ -308,4 +413,40 @@ exports.checkUser = async (req, res, next) => {
         });
     }
   }
+};
+
+exports.deleteUser = async (req, res, next) => {
+  if (!req.query.id) {
+    res.status(401).send({
+      message: "You Should Sign in First",
+    });
+  } else {
+    User.findById(req.query.id)
+      .populate("role")
+      .exec()
+      .then(async (data) => {
+        if (!data) {
+        } else {
+        }
+      });
+  }
+
+  const id = req.query.book_id;
+  Book.findByIdAndRemove(id)
+    .then((data) => {
+      if (!data) {
+        res.status(404).send({
+          message: `Cannot delete Book with id = ${id}. Book was not found!`,
+        });
+      } else {
+        res.status(200).send({
+          message: "Book was deleted successfully!",
+        });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: "Could not delete Book with id = " + id,
+      });
+    });
 };

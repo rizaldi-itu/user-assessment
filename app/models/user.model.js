@@ -1,23 +1,20 @@
 module.exports = (mongoose, mongoosePaginate) => {
   var user = mongoose.Schema(
     {
-      _id: {
-        type: mongoose.Schema.Types.ObjectId,
-      },
+      // _id: {
+      //   type: mongoose.Schema.Types.ObjectId,
+      // },
       username: {
         type: String,
       },
       password: String,
       name: String,
       email: String,
-      roles: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Role",
-          // required: true,
-          // default: "",
-        },
-      ],
+      role: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Role",
+      },
+
       imageUrl: String,
       token: String,
       books: [
