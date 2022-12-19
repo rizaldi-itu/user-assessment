@@ -4,53 +4,67 @@ This application functions to store book and user data, the books contained in t
 
 This application uses node.js technology with the express.js framework and the mongodb database using mongoose library. This application is a backend application, so there is no interface in this application. To interact with this application, a postman is needed to send requests and receive results.
 
-in the section below I will explain some of the features contained in this application in detail, starting from sending requests and their contents and receiving results provided by the server to the client. The explanation will be sorted from the begining or installation until you get the last or final feature from this application 
+in the section below I will explain some of the features contained in this application in detail, starting from sending requests and their contents and receiving results provided by the server to the client. The explanation will be sorted from the begining or installation until you get the last or final feature from this application
 
 ## Prerequisite
+
 Before install this program you should install a few program to your computer
-* Node Js
-* MongoDB
-* MongoDBCompass
-* Postman
+
+- Node Js
+- MongoDB
+- MongoDBCompass
+- Postman
 
 ## Install
+
 First download this application from this repository to your local folder
+
 ```bash
-npm install 
-````
+npm install
+```
+
 you can run this code in the command promt inside your local folder directory
 that is for the express application
 
 ## Turn On
-Before turn on the application you can open your mongoDBCompass and connect with the local server or localhost 
-After installation and mongoDB connection you can start the application using 
+
+Before turn on the application you can open your mongoDBCompass and connect with the local server or localhost
+After installation and mongoDB connection you can start the application using
+
 ```bash
-npm start 
-````
+npm start
+```
+
 Result will be like this
+
 ```bash
 Server Run on Port 3000
 Connected to the database!
-````
+```
 
 # User
-In this section i will explain about feature that used for maniplualtin data from user entity
-this is a few feature for this section 
-* Sign Up
-* Sign In
-* Check Self User Data Detail
-* Check All User Data Available
-* Update User Data
 
-## Sign Up 
+In this section i will explain about feature that used for maniplualtin data from user entity
+this is a few feature for this section
+
+- Sign Up
+- Sign In
+- Check Self User Data Detail
+- Check All User Data Available
+- Update User Data
+
+## Sign Up
+
 Feature Sign Up is used by User for registration or create accout for themself.
-This is the URL for Sign Up 
+This is the URL for Sign Up
+
 ```bash
 http://localhost:3000/signUp
 ```
+
 Request should contain this data
-| Name           | Type           | Description            |
+| Name | Type | Description |
 |----------------|----------------|------------------------|
-| Username       | String         | Username User(required)|
-| Password       | String         | Password User(required)|
-| Password2      | String         | Confirmation Password  |
+| Username | String | Username User(required)|
+| Password | String | Password User(required)|
+| Password2 | String | Confirmation Password |

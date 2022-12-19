@@ -8,126 +8,138 @@ var bcrypt = require("bcryptjs");
 var nodemailer = require("nodemailer");
 var dbatebled;
 const moment = require("moment");
+const { isEmailValid } = require("../middlewares/validation");
 
 const item_per_page = 3;
 
 exports.signUp = async (req, res, next) => {
-  const username = req.body.username;
-  const password = req.body.password;
-  const password2 = req.body.password2;
-  const name = req.body.name;
-  const email = req.body.email;
-  const imageUrl = req.file.path;
-
-  if (password !== password2) {
-    res.send({ message: "Password Doesn't Match" });
+  if (!req.body.username) {
+    res.send({ message: "Please Insert Username" });
   } else {
-    const user = new User({
-      username: username,
-      password: bcrypt.hashSync(password, 8),
-      name: name,
-      email: email,
-      imageUrl: imageUrl,
-    });
-
-    await User.findOne({
-      $or: [{ username: username }, { email: email }],
-    })
-      .exec()
-      .then((data) => {
-        if (data) {
-          if (data.username) {
-            return res.send({ message: "Username Allready Used" });
-          }
-          if (data.email) {
-            return res.send({ message: "Email Allready Used" });
-          }
+    if (!req.body.password) {
+      res.send({ message: "Please Insert Password" });
+    } else {
+      if (!req.body.password2) {
+        res.send({ message: "Please Insert Confirm Password" });
+      } else {
+        if (!req.body.name) {
+          res.send({ message: "Please Insert Name" });
         } else {
-          user.save(user).then((data) => {
-            user.token = jwt.sign({ id: data._id }, config.secret);
-            const query = { _id: [data._id] };
-            const update = { token: user.token };
-            User.updateOne(query, update, (err, result) => {
-              if (err) {
-                return res.send({ message: "Update failed " + err });
+          if (!req.body.email) {
+            res.send({ message: "Please Insert Email" });
+          } else {
+            const checkEmail = await isEmailValid(req.body.email);
+            if (!checkEmail.validators.regex.valid) {
+              res.send({ message: "Please Insert Correct Email" });
+            } else {
+              if (!req.file) {
+                res.send({ message: "Please Insert Image" });
               } else {
-                return res.status(200).send(result, data);
+                const username = req.body.username;
+                const password = req.body.password;
+                const password2 = req.body.password2;
+                const name = req.body.name;
+                const email = req.body.email;
+                const imageUrl = req.file.path;
+
+                if (password !== password2) {
+                  res.send({ message: "Password Doesn't Match" });
+                } else {
+                  const user = new User({
+                    username: username,
+                    password: bcrypt.hashSync(password, 8),
+                    name: name,
+                    email: email,
+                    imageUrl: imageUrl,
+                  });
+
+                  await User.findOne({
+                    $and: [{ username: username }, { email: email }],
+                  })
+                    .exec()
+                    .then((data) => {
+                      if (data) {
+                        if (data.username) {
+                          return res.send({
+                            message: "Username Allready Used",
+                          });
+                        }
+                        if (data.email) {
+                          return res.send({ message: "Email Allready Used" });
+                        }
+                      } else {
+                        user.token = jwt.sign(
+                          { username: username, password: password },
+                          config.secret
+                        );
+                        user.save(user).then((data) => {
+                          return res.send({ message: "Sign Up Success", data });
+                          // user.token = jwt.sign(
+                          //   { username: username, password: password },
+                          //   config.secret
+                          // );
+                          // const query = { _id: [data._id] };
+                          // const update = { token: user.token };
+                          // User.updateOne(query, update, (err, result) => {
+                          //   if (err) {
+                          //     return res.send({ message: "Update failed " + err });
+                          //   } else {
+                          //     return res.status(200).send(result);
+                          //   }
+                          // });
+                        });
+                      }
+                    });
+                }
               }
-            });
-          });
+            }
+          }
         }
-      });
+      }
+    }
   }
 };
 
 exports.signIn = async (req, res, next) => {
-  if (req._id) {
-    res
-      .status(200)
-      .send({ message: "Login with Token Success, Account ID =" + req._id });
-  } else {
-    User.findOne({
-      username: req.body.username,
-    }).exec((err, user) => {
-      if (err) {
-        return res.status(500).send({ message: err });
-      }
-      if (!user) {
-        return res.status(404).send({ message: "User Not found." });
-      }
-      var passwordIsValid = bcrypt.compareSync(
-        req.body.password,
-        user.password
-      );
-      if (!passwordIsValid) {
-        return res.status(401).send({
-          message: "Invalid Password!",
-        });
-      } else {
-        res.status(200).send(user);
-      }
-      // var id = user._id;
-      // var email = user.email;
-      // const user1 = new User({
-      //   token: token,
-      // });
-      // User.findByIdAndUpdate(id, user1, { useFindAndModify: true }).then(
-      //   (data) => {
-      //     if (!data) {
-      //       res.status(404).send({
-      //         message: `Cannot update User with id=${id}. Maybe User was not found!`,
-      //       });
-      //     } else {
-      //       res.send({
-      //         message: "Success update data in database with id=" + id,
-      //       });
-      //     }
-      //   }
-      // );
-
-      // var transporter = nodemailer.createTransport({
-      //   service: "gmail",
-      //   auth: {
-      //     user: "youremail@gmail.com",
-      //     pass: "yourpassword",
-      //   },
-      // });
-
-      // var mailOptions = {
-      //   from: "youremail@gmail.com",
-      //   to: "myfriend@yahoo.com",
-      //   subject: "Sending Email using Node.js",
-      //   text: "That was easy!",
-      // };
-
-      // transporter.sendMail(mailOptions, function (error, info) {
-      //   if (error) {
-      //     console.log(error);
-      //   } else {
-      //     console.log("Email sent: " + info.response);
-      //   }
-      // });
+  if (req.username && req.password) {
+    res.status(200).send({
+      message: "Login with Token Success, Account username = " + req.username,
     });
+  } else {
+    if (!req.body.username) {
+      res.send({ message: "Please Insert Username" });
+    } else {
+      if (!req.body.password) {
+        res.send({ message: "Please Insert Password" });
+      } else {
+        User.findOne({
+          username: req.body.username,
+        }).exec((err, user) => {
+          if (err) {
+            return res.status(500).send({ message: err });
+          }
+          if (!user) {
+            return res.status(404).send({ message: "User Not found." });
+          }
+          var passwordIsValid = bcrypt.compareSync(
+            req.body.password,
+            user.password
+          );
+          if (!passwordIsValid) {
+            return res.status(401).send({
+              message: "Invalid Password!",
+            });
+          } else {
+            res.status(200).send({
+              message:
+                "Login with username & password Success, Account username = " +
+                user.username,
+              user,
+            });
+          }
+        });
+      }
+    }
   }
 };
 
@@ -243,10 +255,10 @@ exports.AddBookToUser = async (req, res, next) => {
     });
 };
 
-exports.checkAllUser = async (req, res, next) => {
+exports.checkUser = async (req, res, next) => {
   if (req.query.id) {
     User.findOne({ _id: req.query.id }).then((data) => {
-      res.send(data);
+      res.send({ message: "Check My Profile Success", data });
     });
   } else {
     const page = req.query.page;

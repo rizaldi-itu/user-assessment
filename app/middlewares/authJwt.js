@@ -12,9 +12,12 @@ verifyToken = (req, res, next) => {
   } else {
     jwt.verify(token, config.secret, (err, decoded) => {
       if (err) {
-        return res.status(401).send({ message: "Unauthorized!" });
+        return res
+          .status(401)
+          .send({ message: "Unauthorized! Sign In with token Failed" });
       }
-      req._id = decoded.id;
+      req.username = decoded.username;
+      req.password = decoded.password;
       next();
     });
   }
