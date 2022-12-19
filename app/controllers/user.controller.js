@@ -145,72 +145,86 @@ exports.signIn = async (req, res, next) => {
 
 exports.updateUser = async (req, res, next) => {
   // res.send(req.didl);
-
-  if (!req.body) {
-    res.status(400).send({
-      message: "Data to update can not be empty!",
-    });
+  if (!req.query.id) {
+    return res.send({ message: "You Should Sign In Already" });
   } else {
-    if (!req.query) {
-      res.status(400).send({
-        message: "Data to update can not be empty!",
-      });
+    if (!req.body.username) {
+      return res.send({ message: "Please fill your Username" });
     } else {
-      User.findOne({ username: req.body.username })
-        .exec()
-        .then((data) => {
-          if (data) {
-            // res.send(data);
-            res.json({
-              message: "Username Already Used!",
-            });
+      if (!req.body.name) {
+        return res.send({ message: "Please fill your Name" });
+      } else {
+        if (!req.body.email) {
+          return res.send({ message: "Please fill your Email" });
+        } else {
+          if (!req.file) {
+            return res.send({ message: "Please fill your Photo" });
           } else {
-            User.findOne({ email: req.body.email })
-              .exec()
-              .then((data) => {
-                if (data) {
-                  res.json({
-                    message: "Email Already Used!",
-                  });
-                } else {
-                  const id = req.query.id;
-
-                  const user = new User({
-                    _id: id,
-                    username: req.body.username,
-                    name: req.body.name,
-                    email: req.body.email,
-                    imageUrl: req.file.path,
-                  });
-
-                  User.findByIdAndUpdate(id, user, { useFindAndModify: true })
-                    .then((data) => {
-                      if (!data) {
-                        res.status(404).send({
-                          message: `Cannot update User with id=${id}. Maybe User was not found!`,
-                        });
-                      } else {
-                        // res.send(data);
-                        User.findOne({ _id: id })
-                          .exec()
-                          .then((data) => {
-                            res.send({
-                              message:
-                                "Success update data in database with id=" + id,
-                              data: data,
-                            });
-                          });
-                      }
-                    })
-                    .catch((err) => {
-                      res.status(500).send({
-                        message: "Error retrieving Book with id=" + id + err,
-                      });
+            const checkEmail = await isEmailValid(req.body.email);
+            if (!checkEmail.validators.regex.valid) {
+              return res.send({ message: "Please fill Email Correctly" });
+            } else {
+              User.findOne({ username: req.body.username })
+                .exec()
+                .then((data) => {
+                  if (data) {
+                    res.send({
+                      message: "Username Already Used!",
                     });
-                }
-              });
+                  } else {
+                    User.findOne({ email: req.body.email })
+                      .exec()
+                      .then((data) => {
+                        if (data) {
+                          res.send({
+                            message: "Email Already Used!",
+                          });
+                        } else {
+                          const id = req.query.id;
+                          const user = new User({
+                            _id: id,
+                            username: req.body.username,
+                            name: req.body.name,
+                            email: req.body.email,
+                            imageUrl: req.file.path,
+                          });
+
+                          User.findByIdAndUpdate(id, user, {
+                            useFindAndModify: true,
+                          })
+                            .then((data) => {
+                              if (!data) {
+                                res.status(404).send({
+                                  message: `Cannot update User with id = ${id}. Maybe User was not found!`,
+                                });
+                              } else {
+                                // res.send(data);
+                                User.findOne({ _id: id })
+                                  .exec()
+                                  .then((data) => {
+                                    res.send({
+                                      message:
+                                        "Success update data in database with id = " +
+                                        id,
+                                      data: data,
+                                    });
+                                  });
+                              }
+                            })
+                            .catch((err) => {
+                              res.status(500).send({
+                                message:
+                                  "Error retrieving Book with id=" + id + err,
+                              });
+                            });
+                        }
+                      });
+                  }
+                });
+            }
           }
-        });
+        }
+      }
     }
   }
 };
@@ -261,15 +275,19 @@ exports.checkUser = async (req, res, next) => {
       res.send({ message: "Check My Profile Success", data });
     });
   } else {
-    const page = req.query.page;
-    if (page < 1) {
-      res.status(404).send({ message: "Page should more than 0" });
+    if (!req.query.page) {
+      res.status(404).send({ message: "You should set default Page = 1" });
+    } else {
+      const page = req.query.page;
+      if (page < 1) {
+        res.status(404).send({ message: "Page should more than 0" });
+      }
+      User.find()
+        // .skip((page - 1) * item_per_page)
+        .limit(page * item_per_page)
+        .then((data) => {
+          res.send({ message: "Check All User Success", data });
+        });
     }
-    User.find()
-      // .skip((page - 1) * item_per_page)
-      .limit(page * item_per_page)
-      .then((data) => {
-        res.send(data);
-      });
   }
 };

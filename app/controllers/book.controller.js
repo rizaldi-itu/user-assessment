@@ -9,58 +9,93 @@ const moment = require("moment");
 const item_per_page = 3;
 
 exports.inputNewBook = async (req, res, next) => {
-  const title = req.body.title;
-  const description = req.body.description;
-  const genre = req.body.genre;
-  const rating = req.body.rating;
-  const published = req.body.published;
-  const user_id = req.query.id;
-
-  const imageUrl = req.file.path;
-
-  const book = new Book({
-    title: title,
-    description: description,
-    genre: genre,
-    rating: rating,
-    published: published,
-    imageUrl: imageUrl,
-  });
-
-  book
-    // .exec()
-    .save(book)
-    .then((data) => {
-      // res.send(data);
-      const book_id = [data._id];
-      const condition = { _id: user_id };
-      const update = { $push: { books: book_id } };
-      User.updateOne(condition, update, (err, result) => {
-        if (err) {
-          // Handle the error
-          res.send({ message: "Update failed " + err });
+  if (!req.query.id) {
+    return res.send({ message: "You Should Sign In First" });
+  } else {
+    User.findById(req.query.id).then((data) => {
+      if (!data) {
+        return res.send({ message: "Account Not Found" });
+      } else {
+        const user = data;
+        if (!req.body.title) {
+          return res.send({ message: "Please fill the Title of the Book" });
         } else {
-          // Update was successful
-          Book.find({ _id: data._id }).then((data) => {
-            const book = data;
-            User.findById(req.query.id).then((data) => {
-              const user = data;
-              res.status(200).json({
-                user: user,
-                book: book,
-                message:
-                  "Add Book Success, This Book Registered With Your Account",
-              });
+          if (!req.body.description) {
+            return res.send({
+              message: "Please fill the Description of the Book",
             });
-          });
+          } else {
+            if (!req.body.genre) {
+              return res.send({ message: "Please fill the Genre of the Book" });
+            } else {
+              if (!req.body.rating) {
+                return res.send({
+                  message: "Please fill the Rating of the Book",
+                });
+              } else {
+                if (!req.body.published) {
+                  return res.send({
+                    message: "Please check the Publish Setting of the Book",
+                  });
+                } else {
+                  if (!req.file) {
+                    return res.send({
+                      message: "Please Insert the Book's Image",
+                    });
+                  } else {
+                    const title = req.body.title;
+                    const description = req.body.description;
+                    const genre = req.body.genre;
+                    const rating = req.body.rating;
+                    const published = req.body.published;
+                    const imageUrl = req.file.path;
+                    const user_id = req.query.id;
+
+                    const book = new Book({
+                      title: title,
+                      description: description,
+                      genre: genre,
+                      rating: rating,
+                      published: published,
+                      imageUrl: imageUrl,
+                    });
+
+                    book
+                      .save(book)
+                      .then((data) => {
+                        const added_book = data;
+                        const book_id = [data._id];
+                        const condition = { _id: user_id };
+                        const update = { $push: { books: book_id } };
+                        User.updateOne(condition, update, (err, result) => {
+                          if (err) {
+                            res.send({ message: "Update failed " + err });
+                          } else {
+                            res.status(200).json({
+                              message:
+                                "Add Book Success, This Book Registered With Your Account",
+                              adding_user: user,
+                              added_book,
+                            });
+                          }
+                        });
+                      })
+                      .catch((err) => {
+                        res.status(500).send({
+                          message:
+                            err.message ||
+                            "Some error occurred while creating the User.",
+                        });
+                      });
+                  }
+                }
+              }
+            }
+          }
         }
-      });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || "Some error occurred while creating the User.",
-      });
+      }
     });
+  }
 };
 
 exports.checkAllBook = async (req, res, next) => {

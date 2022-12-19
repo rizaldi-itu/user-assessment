@@ -10,6 +10,5 @@ router.post("/signUp", userController.signUp);
 router.get("/signIn", middlewares.verifyToken, userController.signIn);
 router.get("/checkUser", userController.checkUser);
 router.put("/updateUser", userController.updateUser);
-// router.get("/checkMyProfile", userController.checkAllUser);
 
 module.exports = router;
