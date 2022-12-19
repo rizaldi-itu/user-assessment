@@ -10,6 +10,14 @@ module.exports = (mongoose, mongoosePaginate) => {
       password: String,
       name: String,
       email: String,
+      roles: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Role",
+          // required: true,
+          // default: "",
+        },
+      ],
       imageUrl: String,
       token: String,
       books: [

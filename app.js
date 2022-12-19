@@ -52,6 +52,7 @@ app.use(userRouter);
 
 // create connection with mongodb
 const db = require("./app/models");
+const Role = db.role;
 db.mongoose
   .connect(db.url, {
     useNewUrlParser: true,
@@ -65,7 +66,42 @@ db.mongoose
     process.exit();
   });
 
+function initial() {
+  Role.estimatedDocumentCount((err, count) => {
+    if (!err && count === 0) {
+      new Role({
+        name: "user",
+      }).save((err) => {
+        if (err) {
+          console.log("error", err);
+        }
+        console.log("added 'user' to roles collection");
+      });
+
+      new Role({
+        name: "admin",
+      }).save((err) => {
+        if (err) {
+          console.log("error", err);
+        }
+        console.log("added 'admin' to roles collection");
+      });
+    }
+  });
+}
+
 // create connection server
 app.listen(3000, "localhost", () => {
   console.log(`Server Run on Port 3000`);
+  // initial();
 });
+
+// Role.pre("save", function (next) {
+//   // Check if the field doesn't exist yet
+//   if (!this.name) {
+//     // Add the new field with a default value
+//     this.name = "User";
+//     this.name = "Admin";
+//   }
+//   next();
+// });

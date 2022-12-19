@@ -1,16 +1,19 @@
 const db = require("../models");
 const User = db.user;
 const Book = db.book;
+const Role = db.role;
 const config = require("../config/auth.config");
 var bodyParser = require("body-parser");
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 var nodemailer = require("nodemailer");
-var dbatebled;
+// var dbatebled;
 const moment = require("moment");
 const { isEmailValid } = require("../middlewares/validation");
 
 const item_per_page = 3;
+
+exports.createdUser = async (req, res, next) => {};
 
 exports.signUp = async (req, res, next) => {
   if (!req.body.username) {
@@ -74,6 +77,11 @@ exports.signUp = async (req, res, next) => {
                           { username: username, password: password },
                           config.secret
                         );
+                        Role.findOne({ name: "user" }).then((data) => {
+                          res.send(data);
+                          process.exit();
+                        });
+
                         user.save(user).then((data) => {
                           return res
                             .status(200)

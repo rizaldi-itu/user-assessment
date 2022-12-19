@@ -12,11 +12,11 @@ exports.inputNewBook = async (req, res, next) => {
   if (!req.query.id) {
     return res.status(401).send({ message: "You Should Sign In First" });
   } else {
-    User.findOne({ _id: [req.query.id] }).then((data) => {
+    User.findOne({ _id: req.query.id }).then((data) => {
       if (!data) {
         return res.status(404).send({ message: "Account Not Found" });
       } else {
-        const user = data;
+        // const user = data;
         if (!req.body.title) {
           return res
             .status(404)
@@ -77,12 +77,17 @@ exports.inputNewBook = async (req, res, next) => {
                               .status(400)
                               .send({ message: "Update failed " + err });
                           } else {
-                            res.status(200).json({
-                              message:
-                                "Add Book Success, This Book Registered With Your Account",
-                              adding_user: user,
-                              added_book,
-                            });
+                            User.findOne(condition)
+                              .exec()
+                              .then((data) => {
+                                const user = data;
+                                res.status(200).send({
+                                  message:
+                                    "Add Book Success, This Book Registered With Your Account",
+                                  adding_user: user,
+                                  added_book,
+                                });
+                              });
                           }
                         });
                       })
@@ -118,14 +123,14 @@ exports.checkAllBook = async (req, res, next) => {
           const page = req.query.page;
           if (page < 1) {
             res.status(404).send({
-              message: "Error retrieving Book with saya juga nggak tau",
+              message: "Page should more than 0",
             });
           } else {
             Book.find()
               // .skip((page - 1) * item_per_page)
               .limit(page * item_per_page)
               .then((data) => {
-                res.send(data);
+                res.status(200).send(data);
               });
           }
         }
@@ -135,19 +140,40 @@ exports.checkAllBook = async (req, res, next) => {
 };
 
 exports.checkBookDetail = async (req, res, next) => {
-  const id = req.query.id;
-
-  Book.findById(id)
-    .then((data) => {
-      if (!data) {
-        res.status(404).send({ message: "Not found Book with id " + id });
-      } else {
-        res.send(data);
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({ message: "Error retrieving Book with id=" + id });
-    });
+  if (!req.query.id) {
+    return res
+      .status(401)
+      .send({ message: "Id Not Detected, Should Sign In First" });
+  } else {
+    User.findOne({ _id: req.query.id })
+      .exec()
+      .then((data) => {
+        if (!data) {
+          return res.status(404).send({ message: "Account Not Found" });
+        } else {
+          if (!req.query.book_id) {
+            return res.status(404).send({ message: "Choose Book First" });
+          } else {
+            const id = req.query.book_id;
+            Book.findById(id)
+              .then((data) => {
+                if (!data) {
+                  res
+                    .status(404)
+                    .send({ message: "Not found Book with id " + id });
+                } else {
+                  res.status(200).send(data);
+                }
+              })
+              .catch((err) => {
+                res
+                  .status(500)
+                  .send({ message: "Error retrieving Book with id=" + id });
+              });
+          }
+        }
+      });
+  }
 };
 
 exports.updateBookDetail = async (req, res, next) => {
@@ -182,36 +208,55 @@ exports.updateBookDetail = async (req, res, next) => {
           message: `Cannot update Book with id=${id}. Maybe Book was not found!`,
         });
       } else {
-        res.send({ message: "Success update data in database with id=" + id });
+        res.send({
+          message: "Success update data in database with id = " + id,
+        });
       }
     })
     .catch((err) => {
       res
         .status(500)
-        .send({ message: "Error retrieving Book with id=" + id + err });
+        .send({ message: "Error retrieving Book with id=  " + id + err });
     });
 };
 
 exports.deleteBook = async (req, res, next) => {
-  const id = req.query.id;
-
-  Book.findByIdAndRemove(id)
-    .then((data) => {
-      if (!data) {
-        res.status(404).send({
-          message: `Cannot delete Book with id=${id}. Maybe Book was not found!`,
-        });
-      } else {
-        res.send({
-          message: "Book was deleted successfully!",
-        });
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Could not delete Book with id=" + id,
+  if (!req.query.id) {
+    return res
+      .status(401)
+      .send({ message: "Id Not Detected, Should Sign In First" });
+  } else {
+    User.findOne({ _id: req.query.id })
+      .exec()
+      .then((data) => {
+        if (!data) {
+          return res.status(404).send({ message: "Account Not Found" });
+        } else {
+          if (!req.query.book_id) {
+            return res.status(404).send({ message: "Choose Book to Delete" });
+          } else {
+            const id = req.query.book_id;
+            Book.findByIdAndRemove(id)
+              .then((data) => {
+                if (!data) {
+                  res.status(404).send({
+                    message: `Cannot delete Book with id = ${id}. Book was not found!`,
+                  });
+                } else {
+                  res.status(200).send({
+                    message: "Book was deleted successfully!",
+                  });
+                }
+              })
+              .catch((err) => {
+                res.status(500).send({
+                  message: "Could not delete Book with id = " + id,
+                });
+              });
+          }
+        }
       });
-    });
+  }
 };
 
 exports.checkBookDetailWithRegex = async (req, res, next) => {
