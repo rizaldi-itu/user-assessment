@@ -11,5 +11,6 @@ router.post("/signUp", userController.signUp);
 router.get("/signIn", middlewares.verifyToken, userController.signIn);
 router.get("/checkUser", userController.checkUser);
 router.put("/updateUser", userController.updateUser);
+router.delete("/deleteUser", userController.deleteUser);
 
 module.exports = router;

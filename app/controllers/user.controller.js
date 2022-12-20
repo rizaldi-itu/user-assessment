@@ -99,7 +99,7 @@ exports.createUser = (req, res, next) => {
                                 );
                                 Role.findOne({ name: "user" }).then((data) => {
                                   user.role = data._id;
-                                  user.id_admin = id_admin;
+                                  user.created_by = id_admin;
                                   user.save(user).then((data) => {
                                     return res.status(200).send({
                                       message: "Sign Up Success",
@@ -186,6 +186,7 @@ exports.signUp = async (req, res, next) => {
                         );
                         Role.findOne({ name: "user" }).then((data) => {
                           user.role = data._id;
+                          user.created_by = "public";
                           user.save(user).then((data) => {
                             return res
                               .status(200)
@@ -389,29 +390,48 @@ exports.AddBookToUser = async (req, res, next) => {
 };
 
 exports.checkUser = async (req, res, next) => {
-  if (req.query.id) {
-    User.findOne({ _id: req.query.id }).then((data) => {
-      if (!data) {
-        res.status(404).send({ message: "Account Not Found" });
-      } else {
-        res.status(200).send({ message: "Check My Profile Success", data });
-      }
-    });
+  if (!req.query.id) {
+    res.status(401).send({ message: "You Need Sign In First!" });
   } else {
-    if (!req.query.page) {
-      res.status(400).send({ message: "You should set default Page = 1" });
-    } else {
-      const page = req.query.page;
-      if (page < 1) {
-        res.status(400).send({ message: "Page should more than 0" });
-      }
-      User.find()
-        // .skip((page - 1) * item_per_page)
-        .limit(page * item_per_page)
-        .then((data) => {
-          res.status(200).send({ message: "Check All User Success", data });
-        });
-    }
+    User.findById(req.query.id)
+      .populate("role")
+      .exec()
+      .then((data) => {
+        if (!data) {
+          res.status(404).send({ message: "User Not found!" });
+        } else {
+          if (data.role.name !== "admin") {
+            if (!req.query.page) {
+              res
+                .status(400)
+                .send({ message: "You should set default Page = 1" });
+            } else {
+              const page = req.query.page;
+              if (page < 1) {
+                res.status(400).send({ message: "Page should more than 0" });
+              }
+              User.find()
+                // .skip((page - 1) * item_per_page)
+                .limit(page * item_per_page)
+                .then((data) => {
+                  res
+                    .status(200)
+                    .send({ message: "Check All User Success", data });
+                });
+            }
+          } else {
+            User.findOne({ _id: req.query.id }).then((data) => {
+              if (!data) {
+                res.status(404).send({ message: "Account Not Found" });
+              } else {
+                res
+                  .status(200)
+                  .send({ message: "Check My Profile Success", data });
+              }
+            });
+          }
+        }
+      });
   }
 };
 
@@ -425,28 +445,38 @@ exports.deleteUser = async (req, res, next) => {
       .populate("role")
       .exec()
       .then(async (data) => {
-        if (!data) {
+        if (data.role.name !== "admin") {
+          res.status(401).send({
+            message: "Role Admin Needed to delete User",
+          });
         } else {
+          if (!req.query.user_id) {
+            res.status(404).send({
+              message: "Select User to Delete",
+            });
+          } else {
+            const id = req.query.user_id;
+            User.findByIdAndRemove(id)
+              .then((data) => {
+                if (!data) {
+                  res.status(404).send({
+                    message: `Cannot delete User with id = ${id}. User was not found!`,
+                  });
+                } else {
+                  res.status(200).send({
+                    message: "User was deleted successfully!",
+                  });
+                }
+              })
+              .catch((err) => {
+                res.status(500).send({
+                  message: "Could not delete User with id = " + id,
+                });
+              });
+          }
         }
       });
   }
 
-  const id = req.query.book_id;
-  Book.findByIdAndRemove(id)
-    .then((data) => {
-      if (!data) {
-        res.status(404).send({
-          message: `Cannot delete Book with id = ${id}. Book was not found!`,
-        });
-      } else {
-        res.status(200).send({
-          message: "Book was deleted successfully!",
-        });
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Could not delete Book with id = " + id,
-      });
-    });
+  //
 };

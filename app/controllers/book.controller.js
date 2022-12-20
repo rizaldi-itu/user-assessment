@@ -177,85 +177,166 @@ exports.checkBookDetail = async (req, res, next) => {
 };
 
 exports.updateBookDetail = async (req, res, next) => {
-  if (!req.body) {
-    return res.status(400).send({
-      message: "Data to update can not be empty!",
+  if (!req.query.id) {
+    return res.status(401).send({
+      message: "Please Sign In First!",
     });
-  }
-
-  if (!req.query) {
-    return res.status(400).send({
-      message: "Data to update can not be empty!",
-    });
-  }
-
-  const id = req.query.id;
-
-  const book = new Book({
-    _id: id,
-    title: req.body.title,
-    description: req.body.description,
-    genre: req.body.genre,
-    rating: req.body.rating,
-    published: req.body.published,
-    imageUrl: req.file.path,
-  });
-
-  Book.findByIdAndUpdate(id, book, { useFindAndModify: true })
-    .then((data) => {
-      if (!data) {
-        res.status(404).send({
-          message: `Cannot update Book with id=${id}. Maybe Book was not found!`,
+  } else {
+    if (!req.query.book_id) {
+      return res.status(404).send({
+        message: "choose Book To Update!",
+      });
+    } else {
+      User.findById(req.query.id)
+        .exec()
+        .then((data) => {
+          if (!data) {
+            return res.status(401).send({
+              message: "User Not Found!",
+            });
+          } else {
+            var owner = 0;
+            for (i = 0; i < data.books.length; i++) {
+              if (req.query.book_id == data.books[i]) {
+                // console.log(req.query.book_id + " " + data.books[i]);
+                owner = 1;
+                continue;
+              }
+            }
+            if (owner === 0) {
+              return res.status(404).send({
+                message: "You're Not The Owner Of This Book!",
+              });
+            } else {
+              if (!req.body.title) {
+                return res.status(404).send({
+                  message: "Title to update can not be empty!",
+                });
+              } else {
+                if (!req.body.description) {
+                  return res.status(404).send({
+                    message: "Description to update can not be empty!",
+                  });
+                } else {
+                  if (!req.body.genre) {
+                    return res.status(404).send({
+                      message: "Genre to update can not be empty!",
+                    });
+                  } else {
+                    if (!req.body.rating) {
+                      return res.status(404).send({
+                        message: "Rating to update can not be empty!",
+                      });
+                    } else {
+                      if (!req.body.published) {
+                        return res.status(404).send({
+                          message: "Published to update can not be empty!",
+                        });
+                      } else {
+                        if (!req.file) {
+                          return res.status(404).send({
+                            message: "Image to update can not be empty!",
+                          });
+                        } else {
+                          const id = req.query.book_id;
+                          const book = new Book({
+                            _id: id,
+                            title: req.body.title,
+                            description: req.body.description,
+                            genre: req.body.genre,
+                            rating: req.body.rating,
+                            published: req.body.published,
+                            imageUrl: req.file.path,
+                          });
+                          Book.findByIdAndUpdate(id, book, {
+                            useFindAndModify: true,
+                          })
+                            .then((data) => {
+                              if (!data) {
+                                res.status(404).send({
+                                  message: `Cannot update Book with id=${id}. Maybe Book was not found!`,
+                                });
+                              } else {
+                                res.status(200).send({
+                                  message:
+                                    "Success update data in database with id = " +
+                                    id,
+                                });
+                              }
+                            })
+                            .catch((err) => {
+                              res.status(500).send({
+                                message:
+                                  "Error retrieving Book with id=  " + id + err,
+                              });
+                            });
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         });
-      } else {
-        res.send({
-          message: "Success update data in database with id = " + id,
-        });
-      }
-    })
-    .catch((err) => {
-      res
-        .status(500)
-        .send({ message: "Error retrieving Book with id=  " + id + err });
-    });
+    }
+  }
 };
 
 exports.deleteBook = async (req, res, next) => {
   if (!req.query.id) {
-    return res
-      .status(401)
-      .send({ message: "Id Not Detected, Should Sign In First" });
+    return res.status(401).send({
+      message: "Please Sign In First!",
+    });
   } else {
-    User.findOne({ _id: req.query.id })
-      .exec()
-      .then((data) => {
-        if (!data) {
-          return res.status(404).send({ message: "Account Not Found" });
-        } else {
-          if (!req.query.book_id) {
-            return res.status(404).send({ message: "Choose Book to Delete" });
-          } else {
-            const id = req.query.book_id;
-            Book.findByIdAndRemove(id)
-              .then((data) => {
-                if (!data) {
-                  res.status(404).send({
-                    message: `Cannot delete Book with id = ${id}. Book was not found!`,
-                  });
-                } else {
-                  res.status(200).send({
-                    message: "Book was deleted successfully!",
-                  });
-                }
-              })
-              .catch((err) => {
-                res.status(500).send({
-                  message: "Could not delete Book with id = " + id,
-                });
-              });
-          }
-        }
+    if (!req.query.book_id) {
+      return res.status(404).send({
+        message: "choose Book To Delete!",
       });
+    } else {
+      User.findById(req.query.id)
+        .exec()
+        .then((data) => {
+          if (!data) {
+            return res.status(401).send({
+              message: "User Not Found!",
+            });
+          } else {
+            var owner = 0;
+            for (i = 0; i < data.books.length; i++) {
+              if (req.query.book_id == data.books[i]) {
+                // console.log(req.query.book_id + " " + data.books[i]);
+                owner = 1;
+                continue;
+              }
+            }
+            if (owner === 0) {
+              return res.status(404).send({
+                message: "You're Not The Owner Of This Book!",
+              });
+            } else {
+              const id = req.query.book_id;
+              Book.findByIdAndRemove(id)
+                .then((data) => {
+                  if (!data) {
+                    res.status(404).send({
+                      message: `Cannot delete Book with id = ${id}. Book was not found!`,
+                    });
+                  } else {
+                    res.status(200).send({
+                      message: "Book was deleted successfully!",
+                    });
+                  }
+                })
+                .catch((err) => {
+                  res.status(500).send({
+                    message: "Could not delete Book with id = " + id,
+                  });
+                });
+            }
+          }
+        });
+    }
   }
 };
 
