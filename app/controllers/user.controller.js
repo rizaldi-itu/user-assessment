@@ -13,7 +13,7 @@ const { isEmailValid } = require("../middlewares/validation");
 const { object } = require("mongoose/lib/utils");
 const { ObjectId } = require("mongoose/lib/types");
 
-const item_per_page = 5;
+const item_per_page = 3;
 
 exports.createUser = (req, res, next) => {
   if (!req.query.id) {
@@ -402,7 +402,8 @@ exports.checkUser = async (req, res, next) => {
         if (!data) {
           res.status(404).send({ message: "User Not found!" });
         } else {
-          if (data.role.name !== "admin") {
+          if (data.role.name === "admin") {
+            admin_data = data;
             if (!req.query.page) {
               res
                 .status(400)
@@ -416,9 +417,11 @@ exports.checkUser = async (req, res, next) => {
                 // .skip((page - 1) * item_per_page)
                 .limit(page * item_per_page)
                 .then((data) => {
-                  res
-                    .status(200)
-                    .send({ message: "Check All User Success", data });
+                  res.status(200).send({
+                    message: "Check Self and All User Success",
+                    data_admin: admin_data,
+                    data_user: data,
+                  });
                 });
             }
           } else {
