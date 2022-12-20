@@ -139,3 +139,47 @@ If User Success to Sign In the result will be like this
     }
 }
 ```
+
+## Check User Self
+
+Feature Check User Self is used by User for Check User Data Profile that saved in MongoDB.
+This is the URL for Check User Self
+
+```bash
+http://localhost:3000/checkUser
+```
+
+Request query(params) should contain this data
+| Name | Type | Description |
+|------|------|-------------|
+| id | String | id User(required) |
+| page | String | Pagination for Admin role check All User(required) |
+
+Or If the User already Signed In Before, User can using token to Sign In that saved in User cache
+
+Request header should contain this data
+| Name | Type | Description |
+|------|------|-------------|
+| x-access-token | String | Token that saved in mongoDB |
+
+If User Success to Sign In the result will be like this
+
+```bash
+{
+    "message": "Login with username & password Success, Account username = user5",
+    "user": {
+        "_id": "63a02aa69605ed7288279fcf",
+        "username": "user5",
+        "password": "$2a$08$n6ZQKp96KfXYPTUb4hic0OjlglKSbi5k0L.XVMgg59HbnXdg9Fm4i",
+        "name": "user5",
+        "email": "user5@gmail.co.id",
+        "imageUrl": "images\\1671441062801-book7.jpg",
+        "books": [],
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXI1IiwicGFzc3dvcmQiOiJ1c2VyNSIsImlhdCI6MTY3MTQ0MTA2Mn0.AWo5Yl9HCULumjDGrgcTHtR8l11U2qWXrZlRFmb7E80",
+        "role": "63a024624fcb6753f6d67cc5",
+        "createdAt": "2022-12-19T09:11:02.872Z",
+        "updatedAt": "2022-12-19T09:11:02.872Z",
+        "__v": 0
+    }
+}
+```

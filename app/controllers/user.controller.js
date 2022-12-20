@@ -397,6 +397,8 @@ exports.checkUser = async (req, res, next) => {
       .populate("role")
       .exec()
       .then((data) => {
+        // res.send(data);
+        // process.exit();
         if (!data) {
           res.status(404).send({ message: "User Not found!" });
         } else {
