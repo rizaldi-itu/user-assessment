@@ -78,18 +78,18 @@ If User Success to Sign Up the result will be like this
 
 ```bash
 "message": "Sign Up Success",
-    "data": {
-        "username": "user13",
-        "password": "$2a$08$3Te/tB7s5n8Dk2lAR2gLaucrUC/4jNB8y/ssF7mILmixkW77qTBA6",
-        "name": "user13",
-        "email": "user13@gmail.com",
-        "imageUrl": "images\\1671506380310-user2.jpg",
-        "books": [],
-        "_id": "63a129cd1240e92068874146",
-        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIxMyIsInBhc3N3b3JkIjoidXNlcjEzIiwiaWF0IjoxNjcxNTA2MzgxfQ.IzHxviUylQlWK13q0gNI7YqFcXc2hCguSmKAty7xqZI",
-        "role": "63a024624fcb6753f6d67cc5",
-        "createdAt": "2022-12-20T03:19:41.303Z",
-        "updatedAt": "2022-12-20T03:19:41.303Z",
-        "__v": 0
-    }
+"data": {
+    "username": "user13",
+    "password": "$2a$08$3Te/tB7s5n8Dk2lAR2gLaucrUC/4jNB8y/ssF7mILmixkW77qTBA6",
+    "name": "user13",
+    "email": "user13@gmail.com",
+    "imageUrl": "images\\1671506380310-user2.jpg",
+    "books": [],
+    "_id": "63a129cd1240e92068874146",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIxMyIsInBhc3N3b3JkIjoidXNlcjEzIiwiaWF0IjoxNjcxNTA2MzgxfQ.IzHxviUylQlWK13q0gNI7YqFcXc2hCguSmKAty7xqZI",
+    "role": "63a024624fcb6753f6d67cc5",
+    "createdAt": "2022-12-20T03:19:41.303Z",
+    "updatedAt": "2022-12-20T03:19:41.303Z",
+    "__v": 0
+}
 ```
