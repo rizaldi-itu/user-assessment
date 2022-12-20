@@ -257,11 +257,16 @@ exports.updateBookDetail = async (req, res, next) => {
                                   message: `Cannot update Book with id=${id}. Maybe Book was not found!`,
                                 });
                               } else {
-                                res.status(200).send({
-                                  message:
-                                    "Success update data in database with id = " +
-                                    id,
-                                });
+                                Book.findById(id)
+                                  .exec()
+                                  .then((data) => {
+                                    res.status(200).send({
+                                      message:
+                                        "Success update data in database with id = " +
+                                        id,
+                                      data,
+                                    });
+                                  });
                               }
                             })
                             .catch((err) => {

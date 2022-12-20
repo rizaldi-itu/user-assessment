@@ -71,10 +71,10 @@ Request body should contain this data
 |------|------|-------------|
 | Username | String | Username User(required) |
 | Password | String | Password User(required) |
-| Password2 | String | Confirmation Password |
-| Name | String | Name User |
-| Email | String | Email User |
-| ImageUrl | File Photo | Photo User |
+| Password2 | String | Confirmation Password(required) |
+| Name | String | Name User(required) |
+| Email | String | Email User(required) |
+| ImageUrl | File Photo | Photo User(required) |
 
 and
 
@@ -121,10 +121,10 @@ Request body should contain this data
 |------|------|-------------|
 | Username | String | Username User(required) |
 | Password | String | Password User(required) |
-| Password2 | String | Confirmation Password |
-| Name | String | Name User |
-| Email | String | Email User |
-| ImageUrl | File Photo | Photo User |
+| Password2 | String | Confirmation Password(required) |
+| Name | String | Name User(required) |
+| Email | String | Email User(required) |
+| ImageUrl | File Photo | Photo User(required) |
 
 If User Success to Sign Up the result will be like this
 
@@ -209,7 +209,7 @@ Request query(params) should contain this data
 | Name | Type | Description |
 |------|------|-------------|
 | id | String | id User(required) |
-| page | String | Pagination for Admin role check All User(required) |
+| page | int | Pagination for Admin role check All User(required) |
 
 If the User have admin role, the result will show all data User, but if the User's role only a user, the result will show user's data only.
 
@@ -410,42 +410,228 @@ this is a few feature for this section
 Feature Insert New Book is used by User for Insert New Book of User's account.
 This is the URL for Insert New Book
 
-DELETE METHOD
+POST METHOD
 
 ```bash
-http://localhost:3000/deleteUser
+http://localhost:3000/inputNewBook
 ```
 
 Request body should contain this data
 | Name | Type | Description |
 |------|------|-------------|
-| Username | String | Username User(required) |
-| Name | String | Name User |
-| Email | String | Email User |
-| ImageUrl | File Photo | Photo User |
+| title | String | Title Book(required) |
+| description | String | Description Book(required) |
+| genre | String | Genre Book(required) |
+| rating | int | rating Book(required) |
+| published | boolean | published status Book(required) |
+| ImageUrl | File Photo | Photo Book |
 
 Request query(params) should contain this data
 | Name | Type | Description |
 |------|------|-------------|
 | id | String | Id User(required) |
 
-If User Success to Update the result will be like this
+If User Success to insert a book the result will be like this
 
 ```bash
 {
-    "message": "Success update data in database with id = 639fcc6bcb69c28af93218b8",
-    "data": {
-        "_id": "639fcc6bcb69c28af93218b8",
-        "username": "user00",
-        "password": "$2a$08$CnaB2Gq441Ds8Es9FeN8LezVkoTzATJxw800xBRtZGm/vZpxUPF5S",
-        "name": "user00",
-        "email": "user00@gmail.co.id",
-        "imageUrl": "images\\1671511221731-user2.jpg",
-        "books": [],
-        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIyMyIsInBhc3N3b3JkIjoidXNlcjIzIiwiaWF0IjoxNjcxNDE2OTM5fQ.xD4vzZAC4buFRo1WmYEDiGAdgerE7tBHDCFk4s_yYy8",
-        "createdAt": "2022-12-19T02:28:59.548Z",
-        "updatedAt": "2022-12-20T04:40:21.752Z",
+    "message": "Add Book Success, This Book Registered With Your Account",
+    "adding_user": {
+        "_id": "6399836425d1c33a34b7c93e",
+        "username": "alrizaldi123",
+        "password": "$2a$08$Dlb.5KzLBb7skNCpCv4/lOWPtwXDekaqE4JhdQfBhrpAZ2EhZgiZW",
+        "name": "alrizaldi123",
+        "email": "alrizaldi123@gmail.co.id",
+        "createdAt": "2022-12-14T08:03:48.084Z",
+        "updatedAt": "2022-12-20T06:40:18.837Z",
+        "__v": 0,
+        "books": [
+            "639fe0e97ff4611ff257e5c3",
+            "639fedbe63545db7f9b974d7",
+            "639fedeefb0f37db5b0cd100",
+            "63a0026b5aa1356e87762b23",
+            "63a00301c912efc0619ea5ec",
+            "63a00320f6d5791957d01315",
+            "63a003582a00be2f53e35167",
+            "63a158d2f5bb877afed4d437"
+        ],
+        "imageUrl": "images\\1671172915926-book6.jpg"
+    },
+    "added_book": {
+        "title": "book15",
+        "description": "description15",
+        "genre": "genre15",
+        "rating": 15,
+        "published": true,
+        "imageUrl": "images\\1671518418782-book8.jpg",
+        "_id": "63a158d2f5bb877afed4d437",
+        "createdAt": "2022-12-20T06:40:18.822Z",
+        "updatedAt": "2022-12-20T06:40:18.822Z",
         "__v": 0
     }
+}
+```
+
+## Check All Book
+
+Feature Insert Check All Book is used by User for Check All book of User's account or another book specifyclly.
+This is the URL for Check All book Detail
+
+GET METHOD
+
+```bash
+http://localhost:3000/checkAllBook
+```
+
+Request query(params) should contain this data
+| Name | Type | Description |
+|------|------|-------------|
+| id | String | Id User(required) |
+| page | int | page for pagination(required) |
+
+If User Success to Check All Book the result will be like this
+
+```bash
+{
+        "_id": "639fedbe63545db7f9b974d7",
+        "title": "book15",
+        "description": "description15",
+        "genre": "genre15",
+        "rating": 15,
+        "published": true,
+        "imageUrl": "images\\1671425470325-book8.jpg",
+        "createdAt": "2022-12-19T04:51:10.335Z",
+        "updatedAt": "2022-12-19T04:51:10.335Z",
+        "__v": 0
+    },
+    {
+        "_id": "639fedeefb0f37db5b0cd100",
+        "title": "book15",
+        "description": "description15",
+        "genre": "genre15",
+        "rating": 15,
+        "published": true,
+        "imageUrl": "images\\1671425517992-book8.jpg",
+        "createdAt": "2022-12-19T04:51:58.006Z",
+        "updatedAt": "2022-12-19T04:51:58.006Z",
+        "__v": 0
+    },
+    {
+        "_id": "63a0026b5aa1356e87762b23",
+        "title": "book2",
+        "description": "description2",
+        "genre": "genre2",
+        "rating": 22,
+        "published": false,
+        "imageUrl": "images\\1671503102498-book3.png",
+        "createdAt": "2022-12-19T06:19:23.887Z",
+        "updatedAt": "2022-12-20T02:25:02.521Z",
+        "__v": 0
+    },
+```
+
+## Check Book Detail
+
+Feature Insert Check Book is used by User for Check book of User's account or another book specifyclly.
+This is the URL for Check book Detail
+
+GET METHOD
+
+```bash
+http://localhost:3000/checkBookDetail
+```
+
+Request query(params) should contain this data
+| Name | Type | Description |
+|------|------|-------------|
+| id | String | Id User(required) |
+| book_id | String | Id Book(required) |
+
+If User Success to Check Book the result will be like this
+
+```bash
+{
+    "_id": "639fedbe63545db7f9b974d7",
+    "title": "book15",
+    "description": "description15",
+    "genre": "genre15",
+    "rating": 15,
+    "published": true,
+    "imageUrl": "images\\1671425470325-book8.jpg",
+    "createdAt": "2022-12-19T04:51:10.335Z",
+    "updatedAt": "2022-12-19T04:51:10.335Z",
+    "__v": 0
+}
+```
+
+## Update Book
+
+Feature Update Book is used by User for Update Book of User's account.
+This is the URL for Update Book
+
+PUT METHOD
+
+```bash
+http://localhost:3000/updateBookDetail
+```
+
+Request body should contain this data
+| Name | Type | Description |
+|------|------|-------------|
+| title | String | Title Book(required) |
+| description | String | Description Book(required) |
+| genre | String | Genre Book(required) |
+| rating | int | rating Book(required) |
+| published | boolean | published status Book(required) |
+| ImageUrl | File Photo | Photo Book |
+
+Request query(params) should contain this data
+| Name | Type | Description |
+|------|------|-------------|
+| id | String | Id User(required) |
+| book_id | String | Book Id want to Update(required) |
+
+If User Success to Update a book the result will be like this
+
+```bash
+{
+    "message": "Success update data in database with id = 63a0026b5aa1356e87762b23",
+    "data": {
+        "_id": "63a0026b5aa1356e87762b23",
+        "title": "book2",
+        "description": "description2",
+        "genre": "genre2",
+        "rating": 22,
+        "published": false,
+        "imageUrl": "images\\1671520660465-book3.png",
+        "createdAt": "2022-12-19T06:19:23.887Z",
+        "updatedAt": "2022-12-20T07:17:40.481Z",
+        "__v": 0
+    }
+}
+```
+
+## Delete Book
+
+Feature Delete Book is used by User for Delete Book of User's account.
+This is the URL for Delete Book
+
+DELETE METHOD
+
+```bash
+http://localhost:3000/deleteBook
+```
+
+Request query(params) should contain this data
+| Name | Type | Description |
+|------|------|-------------|
+| id | String | Id User(required) |
+| book_id | String | Book Id want to Delete(required) |
+
+If User Success to Delete a book the result will be like this
+
+```bash
+{
+    "message": "Book was deleted successfully!"
 }
 ```
