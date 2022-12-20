@@ -64,7 +64,7 @@ This is the URL for Sign Up
 http://localhost:3000/signUp
 ```
 
-Request should contain this data
+Request body should contain this data
 | Name | Type | Description |
 |------|------|-------------|
 | Username | String | Username User(required) |
@@ -77,19 +77,65 @@ Request should contain this data
 If User Success to Sign Up the result will be like this
 
 ```bash
-"message": "Sign Up Success",
-"data": {
-    "username": "user13",
-    "password": "$2a$08$3Te/tB7s5n8Dk2lAR2gLaucrUC/4jNB8y/ssF7mILmixkW77qTBA6",
-    "name": "user13",
-    "email": "user13@gmail.com",
-    "imageUrl": "images\\1671506380310-user2.jpg",
-    "books": [],
-    "_id": "63a129cd1240e92068874146",
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIxMyIsInBhc3N3b3JkIjoidXNlcjEzIiwiaWF0IjoxNjcxNTA2MzgxfQ.IzHxviUylQlWK13q0gNI7YqFcXc2hCguSmKAty7xqZI",
-    "role": "63a024624fcb6753f6d67cc5",
-    "createdAt": "2022-12-20T03:19:41.303Z",
-    "updatedAt": "2022-12-20T03:19:41.303Z",
-    "__v": 0
+{
+    "message": "Sign Up Success",
+    "data": {
+        "username": "user13",
+        "password": "$2a$08$3Te/tB7s5n8Dk2lAR2gLaucrUC/4jNB8y/ssF7mILmixkW77qTBA6",
+        "name": "user13",
+        "email": "user13@gmail.com",
+        "imageUrl": "images\\1671506380310-user2.jpg",
+        "books": [],
+        "_id": "63a129cd1240e92068874146",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIxMyIsInBhc3N3b3JkIjoidXNlcjEzIiwiaWF0IjoxNjcxNTA2MzgxfQ.IzHxviUylQlWK13q0gNI7YqFcXc2hCguSmKAty7xqZI",
+        "role": "63a024624fcb6753f6d67cc5",
+        "createdAt": "2022-12-20T03:19:41.303Z",
+        "updatedAt": "2022-12-20T03:19:41.303Z",
+        "__v": 0
+    }
+}
+```
+
+## Sign In
+
+Feature Sign In is used by User for log In into the app and access things in the app.
+This is the URL for Sign In
+
+```bash
+http://localhost:3000/signIn
+```
+
+Request body should contain this data
+| Name | Type | Description |
+|------|------|-------------|
+| Username | String | Username User(required) |
+| Password | String | Password User(required) |
+
+Or If the User already Signed In Before, User can using token to Sign In that saved in User phone
+
+Request header should contain this data
+| Name | Type | Description |
+|------|------|-------------|
+| x-access-token | String | Token that saved in mongoDB |
+
+If User Success to Sign In the result will be like this
+
+```bash
+{
+    "message": "Login with username & password Success, Account username = user5",
+    "user": {
+        "_id": "63a02aa69605ed7288279fcf",
+        "username": "user5",
+        "password": "$2a$08$n6ZQKp96KfXYPTUb4hic0OjlglKSbi5k0L.XVMgg59HbnXdg9Fm4i",
+        "name": "user5",
+        "email": "user5@gmail.co.id",
+        "imageUrl": "images\\1671441062801-book7.jpg",
+        "books": [],
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXI1IiwicGFzc3dvcmQiOiJ1c2VyNSIsImlhdCI6MTY3MTQ0MTA2Mn0.AWo5Yl9HCULumjDGrgcTHtR8l11U2qWXrZlRFmb7E80",
+        "role": "63a024624fcb6753f6d67cc5",
+        "createdAt": "2022-12-19T09:11:02.872Z",
+        "updatedAt": "2022-12-19T09:11:02.872Z",
+        "__v": 0
+    }
 }
 ```
