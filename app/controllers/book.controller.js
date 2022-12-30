@@ -130,7 +130,7 @@ exports.checkAllBook = async (req, res, next) => {
               // .skip((page - 1) * item_per_page)
               .limit(page * item_per_page)
               .then((data) => {
-                res.status(200).send(data);
+                res.status(200).send({ data: data });
               });
           }
         }
