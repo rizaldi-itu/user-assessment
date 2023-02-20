@@ -1,4 +1,21 @@
 const dbConfig = require("../config/db.config.js");
+const MongoClient = require("mongodb").MongoClient;
+
+// MongoClient.connect(
+//   "mongodb://localhost:27017/mydatabase",
+//   function (err, client) {
+//     if (err) throw err;
+
+//     const db = client.db("mydatabase");
+//     const collection = db.collection("mycollection");
+
+//     const changeStream = collection.watch();
+
+//     changeStream.on("change", function (change) {
+//       console.log("Document has been inserted/updated:", change);
+//     });
+//   }
+// );
 
 const mongoose = require("mongoose");
 const mongoosePaginate = require("mongoose-paginate-v2");

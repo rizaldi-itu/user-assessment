@@ -6,6 +6,32 @@ const { application } = require("express");
 // const uploadFile = require("../middlewares/upload");
 const moment = require("moment");
 
+// const EventEmitter = require("events");
+// const Stream = new EventEmitter();
+
+// const { MongoClient } = require("mongodb");
+
+// const uri = "mongodb://127.0.0.1:27017";
+// const client = new MongoClient(uri);
+
+// client.connect(async (err, s) => {
+//   if (err) {
+//     console.error(err);
+//     return;
+//   }
+//   if (s) {
+//     console.log("connected");
+//   }
+
+//   const collection = client.db("user_assessment").collection("books");
+
+//   const changeStream = collection.watch();
+
+//   changeStream.on("change", (next) => {
+//     console.log("Changed document:", next.fullDocument);
+//   });
+// });
+
 const item_per_page = 3;
 
 exports.inputNewBook = async (req, res, next) => {
@@ -368,4 +394,89 @@ exports.checkBookDetailWithRegex = async (req, res, next) => {
         .status(500)
         .send({ message: "Error retrieving Book with Regex=" + text });
     });
+};
+
+exports.checkAllBookSendToFrontEnd = (req, res) => {
+  var value = {};
+
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+  });
+
+  setInterval(() => {
+    // Return only collection lenght
+    Book.countDocuments({}, (err, count) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      res.write(`data: ${JSON.stringify({ data: count })}\n\n`);
+    });
+
+    // All data inside the collection
+    // Book.find().then((data) => {
+    //   if (this.value === data) {
+    //     this.value = data;
+    //   } else {
+    //     console.log(`${data.length}`);
+    //     // res.write(`event: data\n`);
+    //     // res.write(`data: ${JSON.stringify(data)}\n\n`);
+    //     res.write(`data: ${JSON.stringify({ data })}\n\n`);
+    //   }
+    // });
+
+    res.flushHeaders();
+  }, 3000);
+};
+
+exports.checkAllBookSendToFrontEnd2UsingChangeStreamMongo = (req, res) => {
+  const changeStream = Book.watch();
+
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+  });
+
+  changeStream.on("change", function (change) {
+    console.log("Document has been inserted/updated:", change);
+    Book.find()
+      .sort({ timestamps: "desc" })
+      .exec((err, data) => {
+        // res.write(`event: data\n`);
+        res.write(`data: ${JSON.stringify(data)}\n\n`);
+      });
+  });
+};
+
+exports.checkAllBookSendToFrontEnd3 = (req, res) => {
+  const MongoClient = require("mongodb").MongoClient;
+
+  MongoClient.connect(
+    "mongodb://127.0.0.1:27017/user_assessment",
+    function (err, client) {
+      if (err) throw err;
+
+      const db = client.db("user_assessment");
+      const collection = db.collection("books");
+
+      const changeStream = collection.watch();
+
+      res.writeHead(200, {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      });
+
+      changeStream.on("change", function (change) {
+        console.log("Document has been inserted/updated:", change);
+        Book.find().then((data) => {
+          res.write(`event: data\n`);
+          res.write(`data: ${JSON.stringify(data)}\n\n`);
+        });
+      });
+    }
+  );
 };

@@ -8,6 +8,13 @@ const nodemailer = require("nodemailer");
 const moment = require("moment");
 const app = express();
 
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
+
 //destination file
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -50,6 +57,11 @@ const userRouter = require("./app/routes/user.routes");
 app.use(bookRouter);
 app.use(userRouter);
 
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+  next();
+});
+
 // create connection with mongodb
 const db = require("./app/models");
 const Role = db.role;
@@ -68,7 +80,7 @@ db.mongoose
 
 // create connection server
 app.listen(3000, "localhost", () => {
-  console.log(`Server Run on Port 3000`);
+  console.log(`Server Run on Port 3000s`);
   // initial();
 });
 

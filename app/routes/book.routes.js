@@ -15,4 +15,9 @@ router.get(
   bookController.checkBookDetailWithRegex
 );
 
+router.get(
+  "/checkAllBookSendToFrontEnd",
+  bookController.checkAllBookSendToFrontEnd
+);
+
 module.exports = router;
